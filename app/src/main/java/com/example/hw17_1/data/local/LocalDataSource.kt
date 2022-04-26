@@ -1,11 +1,11 @@
 package com.example.hw17_1.data.local
 
-import com.example.hw17_1.model.DatabaseMovie
-import com.example.hw17_1.model.MovieDetail
+import com.example.hw17_1.model.Movie
+import com.example.hw17_1.model.MovieList
 import javax.inject.Inject
 
 class LocalDataSource @Inject constructor(private val movieDao: MovieDao) {
-    fun updateDatabase(list: MutableList<DatabaseMovie>) {
+    suspend fun updateDatabase(list: MutableList<Movie>) {
         movieDao.updateDatabase(list)
     }
 }

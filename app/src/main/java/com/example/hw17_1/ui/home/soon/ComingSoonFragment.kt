@@ -8,20 +8,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hw17_1.R
 import com.example.hw17_1.databinding.FragmentComingSoonBinding
 import com.example.hw17_1.ui.detail.DetailActivity
-import com.example.hw17_1.ui.home.HomeViewModel
 import com.example.hw17_1.ui.home.MovieAdapter
 import com.example.hw17_1.util.MOVIE_ID
 import com.example.hw17_1.util.MOVIE_TITLE
+import com.example.hw17_1.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ComingSoonFragment : Fragment(R.layout.fragment_coming_soon) {
     private lateinit var binding: FragmentComingSoonBinding
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: ComingSoonViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -34,18 +36,35 @@ class ComingSoonFragment : Fragment(R.layout.fragment_coming_soon) {
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = MovieAdapter() { id,title ->
-            val intent= Intent(requireActivity(), DetailActivity::class.java).apply {
-                putExtra(MOVIE_ID,id)
-                putExtra(MOVIE_TITLE,title)
+        val adapter = MovieAdapter() { id, title ->
+            val intent = Intent(requireActivity(), DetailActivity::class.java).apply {
+                putExtra(MOVIE_ID, id)
+                putExtra(MOVIE_TITLE, title)
             }
             startActivity(intent)
         }
         binding.upcomingRecycler.adapter = adapter
         binding.upcomingRecycler.layoutManager = LinearLayoutManager(requireContext())
-        viewModel.upcomingMovieList.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
-            adapter.notifyDataSetChanged()
+
+        lifecycleScope.launch {
+            viewModel.upcomingMovieList.collect{result->
+                when(result){
+                    is Resource.Success->{
+                        adapter.submitList(result.data!!)
+                        adapter.notifyDataSetChanged()
+                        binding.progressBar2.visibility = View.GONE
+                    }
+                    is Resource.Error->{
+                        binding.upcomingRecycler.visibility = View.GONE
+                        binding.progressBar2.visibility = View.GONE
+                        binding.connectionFaildText.visibility = View.VISIBLE
+                        binding.retryButton.visibility = View.VISIBLE
+                    }
+                    is Resource.Loading->{
+                        binding.progressBar2.visibility = View.VISIBLE
+                    }
+                }
+            }
         }
         viewModel.getUpcomingMovieList()
     }

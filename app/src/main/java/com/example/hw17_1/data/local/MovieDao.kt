@@ -1,18 +1,19 @@
 package com.example.hw17_1.data.local
 
 import androidx.room.*
-import com.example.hw17_1.model.DatabaseMovie
-import com.example.hw17_1.model.MovieDetail
+import com.example.hw17_1.model.Movie
+import com.example.hw17_1.model.MovieList
+
 
 @Dao
 interface MovieDao {
     @Insert
-    fun insertMovieList(list: MutableList<DatabaseMovie>)
-    @Query("DELETE FROM DatabaseMovie")
+    fun insertMovieList(list: MutableList<Movie>)
+    @Query("DELETE FROM Movie")
     fun deleteAll()
 
     @Transaction
-    fun updateDatabase(list: MutableList<DatabaseMovie>) {
+   suspend fun updateDatabase(list: MutableList<Movie>) {
         deleteAll()
         insertMovieList(list)
     }

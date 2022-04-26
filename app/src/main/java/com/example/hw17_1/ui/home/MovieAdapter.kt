@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.hw17_1.R
 import com.example.hw17_1.model.Movie
+import com.example.hw17_1.model.MovieList
 
 class MovieAdapter(private val onCLick:(id:Int,title:String) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     private val movieList : MutableList<Movie> = mutableListOf()
@@ -24,7 +25,7 @@ class MovieAdapter(private val onCLick:(id:Int,title:String) -> Unit) : Recycler
             is MovieViewHolder ->{
                 holder.bind(movieList[position])
                 holder.itemView.setOnClickListener{
-                    onCLick(movieList[position].id,movieList[position].title)
+                    onCLick(movieList[position].id,movieList[position].title!!)
                 }
             }
         }

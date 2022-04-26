@@ -1,6 +1,6 @@
 package com.example.hw17_1.model
 
-data class Result(
+data class Result<T>(
     val id: String,
     val iso_3166_1: String,
     val iso_639_1: String,

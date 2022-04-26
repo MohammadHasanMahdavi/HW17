@@ -12,17 +12,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hw17_1.R
 import com.example.hw17_1.databinding.FragmentSearchBinding
 import com.example.hw17_1.ui.detail.DetailActivity
-import com.example.hw17_1.ui.home.HomeViewModel
 import com.example.hw17_1.ui.home.MovieAdapter
 import com.example.hw17_1.util.MOVIE_ID
 import com.example.hw17_1.util.MOVIE_TITLE
+import com.example.hw17_1.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SearchFragment : Fragment(R.layout.fragment_search) {
     private lateinit var binding: FragmentSearchBinding
-    private val viewModel : HomeViewModel by viewModels()
+    private val viewModel : SearchViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,17 +44,27 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
         binding.searchRecycler.adapter = adapter
         binding.searchRecycler.layoutManager = LinearLayoutManager(requireContext())
-//        viewModel.searchResult.observe(viewLifecycleOwner){
-//            adapter.submitList(it)
-//            adapter.notifyDataSetChanged()
-//        }
         lifecycleScope.launch {
-            viewModel.searchResult.collect{searchResult->
-                adapter.submitList(searchResult)
-                adapter.notifyDataSetChanged()
+            viewModel.searchResult.collect{result->
+                when(result){
+                    is Resource.Success->{
+                        adapter.submitList(result.data!!)
+                        adapter.notifyDataSetChanged()
+                        binding.progressBar2.visibility = View.GONE
+                    }
+                    is Resource.Error->{
+                        binding.searchRecycler.visibility = View.GONE
+                        binding.progressBar2.visibility = View.GONE
+                        binding.connectionFaildText.visibility = View.VISIBLE
+                        binding.retryButton.visibility = View.VISIBLE
+                    }
+                    is Resource.Loading->{
+                        binding.progressBar2.visibility = View.VISIBLE
+                    }
+                }
             }
         }
-
+        binding.progressBar2.visibility = View.GONE
         binding.searchButton.setOnClickListener {
             val searchQuery = binding.searchEditText.text.toString()
             if (searchQuery.isNotBlank()){

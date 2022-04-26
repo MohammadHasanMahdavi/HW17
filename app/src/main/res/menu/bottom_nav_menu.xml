@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/popularFragment"
+        android:title="Home"
+        android:icon="@drawable/baseline_home_black_24"/>
+    <item android:id="@+id/searchFragment"
+        android:title="Search"
+        android:icon="@drawable/baseline_search_black_24"/>
+    <item android:id="@+id/comingSoonFragment"
+        android:title="Coming Soon"
+        android:icon="@drawable/baseline_date_range_black_24"/>
+</menu>

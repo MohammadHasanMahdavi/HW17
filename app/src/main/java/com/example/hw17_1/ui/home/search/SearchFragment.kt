@@ -3,6 +3,7 @@ package com.example.hw17_1.ui.home.search
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -47,27 +48,47 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         lifecycleScope.launch {
             viewModel.searchResult.collect{result->
                 when(result){
-                    is Resource.Success->{
-                        adapter.submitList(result.data!!)
-                        adapter.notifyDataSetChanged()
-                        binding.progressBar2.visibility = View.GONE
+                    is Resource.Success-> {
+                        if (result.data!!.size != 0) {
+                            binding.apply {
+                                loadingAnimation.visibility = View.GONE
+                                searchRecycler.visibility = View.VISIBLE
+                                notFound.visibility = View.GONE
+                            }
+                            adapter.submitList(result.data)
+                            adapter.notifyDataSetChanged()
+                        }else{
+                            binding.apply {
+                                searchRecycler.visibility = View.INVISIBLE
+                                loadingAnimation.visibility = View.INVISIBLE
+                                connectionFailedText.visibility = View.GONE
+                                notFound.visibility = View.VISIBLE
+                            }
+                        }
                     }
                     is Resource.Error->{
-                        binding.searchRecycler.visibility = View.GONE
-                        binding.progressBar2.visibility = View.GONE
-                        binding.connectionFaildText.visibility = View.VISIBLE
-                        binding.retryButton.visibility = View.VISIBLE
+                        binding.searchRecycler.visibility = View.INVISIBLE
+                        binding.loadingAnimation.visibility = View.INVISIBLE
+                        binding.connectionFailedText.visibility = View.VISIBLE
                     }
                     is Resource.Loading->{
-                        binding.progressBar2.visibility = View.VISIBLE
+                        binding.loadingAnimation.visibility = View.VISIBLE
                     }
                 }
             }
         }
-        binding.progressBar2.visibility = View.GONE
+        binding.loadingAnimation.visibility = View.INVISIBLE
         binding.searchButton.setOnClickListener {
             val searchQuery = binding.searchEditText.text.toString()
             if (searchQuery.isNotBlank()){
+                binding.apply {
+                    connectionFailedText.visibility = View.INVISIBLE
+                    binding.loadingAnimation.visibility = View.VISIBLE
+                    loadingAnimation.animate().apply {
+                        duration = 10000
+                        startDelay = 0
+                    }
+                }
                 viewModel.searchMovieList(searchQuery)
             }else{
                 Toast.makeText(requireContext(), "Please enter a valid text.", Toast.LENGTH_SHORT).show()

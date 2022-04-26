@@ -22,8 +22,10 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ComingSoonFragment : Fragment(R.layout.fragment_coming_soon) {
+
     private lateinit var binding: FragmentComingSoonBinding
     private val viewModel: ComingSoonViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,6 +38,7 @@ class ComingSoonFragment : Fragment(R.layout.fragment_coming_soon) {
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val adapter = MovieAdapter() { id, title ->
             val intent = Intent(requireActivity(), DetailActivity::class.java).apply {
                 putExtra(MOVIE_ID, id)
@@ -43,6 +46,7 @@ class ComingSoonFragment : Fragment(R.layout.fragment_coming_soon) {
             }
             startActivity(intent)
         }
+
         binding.upcomingRecycler.adapter = adapter
         binding.upcomingRecycler.layoutManager = LinearLayoutManager(requireContext())
 
@@ -52,16 +56,19 @@ class ComingSoonFragment : Fragment(R.layout.fragment_coming_soon) {
                     is Resource.Success->{
                         adapter.submitList(result.data!!)
                         adapter.notifyDataSetChanged()
-                        binding.progressBar2.visibility = View.GONE
+                        binding.loadingAnimation.visibility=View.GONE
                     }
                     is Resource.Error->{
                         binding.upcomingRecycler.visibility = View.GONE
-                        binding.progressBar2.visibility = View.GONE
-                        binding.connectionFaildText.visibility = View.VISIBLE
+                        binding.loadingAnimation.visibility=View.GONE
+                        binding.connectionFailedText.visibility = View.VISIBLE
                         binding.retryButton.visibility = View.VISIBLE
                     }
                     is Resource.Loading->{
-                        binding.progressBar2.visibility = View.VISIBLE
+                        binding.loadingAnimation.animate().apply {
+                            duration = 10000
+                            startDelay = 0
+                        }
                     }
                 }
             }
